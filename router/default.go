@@ -1,6 +1,9 @@
 package router
 
 import (
+	"embed"
+	"io/fs"
+	"net/http"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -10,7 +13,7 @@ import (
 	"github.com/keainya/service_temp/service"
 )
 
-func InitRouter() *gin.Engine {
+func InitRouter(webFS embed.FS) *gin.Engine {
 	r := gin.Default()
 
 	// ---- CORS 中间件 ----
@@ -26,6 +29,13 @@ func InitRouter() *gin.Engine {
 	// ---- Session 中间件 ----
 	store := cookie.NewStore([]byte("change-me-to-a-secure-random-key"))
 	r.Use(sessions.Sessions("service_session", store))
+
+	// ---- 嵌入式前端静态文件 ----
+	staticFS, err := fs.Sub(webFS, "web")
+	if err != nil {
+		panic(err)
+	}
+	r.StaticFS("/", http.FS(staticFS))
 
 	// 路由
 	r.GET("/status", service.Status)

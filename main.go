@@ -11,5 +11,5 @@ func main() {
 	if object.Database == nil {
 		fmt.Println("database error")
 	}
-	router.InitRouter().Run()
+	router.InitRouter(webFS).Run()
 }
