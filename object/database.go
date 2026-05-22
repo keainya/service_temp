@@ -12,7 +12,8 @@ var Database *gorm.DB
 
 func init() {
 	os.MkdirAll("data", 0755)
-	Database, err := gorm.Open(sqlite.Open("data/service_temp.db"), &gorm.Config{})
+	var err error
+	Database, err = gorm.Open(sqlite.Open("data/service_temp.db"), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}

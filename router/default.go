@@ -30,14 +30,14 @@ func InitRouter(webFS embed.FS) *gin.Engine {
 	store := cookie.NewStore([]byte("change-me-to-a-secure-random-key"))
 	r.Use(sessions.Sessions("service_session", store))
 
-	// ---- 嵌入式前端静态文件 ----
+	// ---- 嵌入式前端静态文件 (NoRoute 兜底) ----
 	staticFS, err := fs.Sub(webFS, "web")
 	if err != nil {
 		panic(err)
 	}
-	r.StaticFS("/", http.FS(staticFS))
+	r.NoRoute(gin.WrapH(http.FileServer(http.FS(staticFS))))
 
-	// 路由
+	// API 路由
 	r.GET("/status", service.Status)
 	r.GET("/session/set", service.SessionSet)
 	r.GET("/session/get", service.SessionGet)
