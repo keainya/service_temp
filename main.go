@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/keainya/service_temp/object"
 	"github.com/keainya/service_temp/router"
@@ -10,6 +11,7 @@ import (
 func main() {
 	if object.Database == nil {
 		fmt.Println("database error")
+		os.Exit(1)
 	}
 	router.InitRouter(webFS).Run()
 }

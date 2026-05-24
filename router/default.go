@@ -18,7 +18,7 @@ func InitRouter(webFS embed.FS) *gin.Engine {
 
 	// ---- CORS 中间件 ----
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
+		AllowOriginFunc:  func(origin string) bool { return true },
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -30,12 +30,17 @@ func InitRouter(webFS embed.FS) *gin.Engine {
 	store := cookie.NewStore([]byte("change-me-to-a-secure-random-key"))
 	r.Use(sessions.Sessions("service_session", store))
 
-	// ---- 嵌入式前端静态文件 (NoRoute 兜底) ----
+	// ---- 嵌入式前端静态文件 ----
 	staticFS, err := fs.Sub(webFS, "web")
 	if err != nil {
 		panic(err)
 	}
-	r.NoRoute(gin.WrapH(http.FileServer(http.FS(staticFS))))
+	r.StaticFS("/", http.FS(staticFS))
+
+	// API 404 统一返回 JSON
+	r.NoRoute(func(c *gin.Context) {
+		c.JSON(404, gin.H{"code": -1, "msg": "not found"})
+	})
 
 	// API 路由
 	r.GET("/status", service.Status)
