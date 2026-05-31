@@ -1,6 +1,6 @@
 go mod tidy
 set GOOS=linux
-go build -o app.out
+go build -ldflags="-s -w" -o app.out
 set GOOS=windows
 
 ssh root@takemeto.icu "mkdir /apps 2>/dev/null"
