@@ -125,12 +125,16 @@ func (h *OAuthHandler) Logout(c *gin.Context) {
 }
 
 type tokenResponse struct {
-	AccessToken string `json:"access_token"`
+	AccessToken  string `json:"access_token"`
+	TokenType    string `json:"token_type"`
+	ExpiresIn    int    `json:"expires_in"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 type userInfoResponse struct {
 	Sub      string `json:"sub"`
 	Username string `json:"username"`
+	Email    string `json:"email"`
 	Role     string `json:"role"`
 }
 
@@ -146,27 +150,24 @@ func (h *OAuthHandler) exchangeToken(code string) (*tokenResponse, error) {
 	client := &http.Client{Timeout: 10 * time.Second}
 	resp, err := client.PostForm(h.Cfg.OAuth.AccountURL+"/oauth/token", form)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("request token endpoint: %w", err)
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("read token response: %w", err)
 	}
 
-	var apiResp struct {
-		Code int            `json:"code"`
-		Msg  string         `json:"msg"`
-		Data *tokenResponse `json:"data"`
+	// /oauth/token 返回扁平 JSON（无 {code,data} 包裹）
+	var tokenResp tokenResponse
+	if err := json.Unmarshal(body, &tokenResp); err != nil {
+		return nil, fmt.Errorf("parse token response (%s): %w", string(body), err)
 	}
-	if err := json.Unmarshal(body, &apiResp); err != nil {
-		return nil, err
+	if tokenResp.AccessToken == "" {
+		return nil, fmt.Errorf("empty access_token, response: %s", string(body))
 	}
-	if apiResp.Code != 0 {
-		return nil, fmt.Errorf("%s", apiResp.Msg)
-	}
-	return apiResp.Data, nil
+	return &tokenResp, nil
 }
 
 func (h *OAuthHandler) getUserInfo(accessToken string) (*userInfoResponse, error) {
@@ -188,9 +189,13 @@ func (h *OAuthHandler) getUserInfo(accessToken string) (*userInfoResponse, error
 		return nil, err
 	}
 
+	// /oauth/userinfo 返回扁平 JSON（无 {code,data} 包裹）
 	var userInfo userInfoResponse
 	if err := json.Unmarshal(body, &userInfo); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("parse userinfo response (%s): %w", string(body), err)
+	}
+	if userInfo.Sub == "" {
+		return nil, fmt.Errorf("empty sub in userinfo, response: %s", string(body))
 	}
 	return &userInfo, nil
 }
