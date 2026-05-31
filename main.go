@@ -13,5 +13,9 @@ func main() {
 		fmt.Println("database error")
 		os.Exit(1)
 	}
-	router.InitRouter(webFS).Run()
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8081"
+	}
+	router.InitRouter(webFS).Run(":" + port)
 }
