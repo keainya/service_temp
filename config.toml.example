@@ -1,0 +1,12 @@
+[server]
+# 服务监听端口，默认 8081
+port = "8081"
+
+[oauth]
+# Account 用户系统地址
+account_url = "https://account.takemeto.icu"
+# OAuth 2.0 应用凭证（在 Account 管理后台创建应用后获取）
+client_id = "app_xxxxxxxx"
+client_secret = "sec_xxxxxxxx"
+# OAuth 回调地址，需与应用注册的 redirect_uris 一致
+redirect_uri = "http://localhost:8081/callback"

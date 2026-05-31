@@ -10,10 +10,11 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
+	"github.com/keainya/service_temp/config"
 	"github.com/keainya/service_temp/service"
 )
 
-func InitRouter(webFS embed.FS) *gin.Engine {
+func InitRouter(webFS embed.FS, cfg *config.Config) *gin.Engine {
 	r := gin.Default()
 
 	// ---- CORS 中间件 ----
@@ -30,11 +31,14 @@ func InitRouter(webFS embed.FS) *gin.Engine {
 	store := cookie.NewStore([]byte("change-me-to-a-secure-random-key"))
 	r.Use(sessions.Sessions("service_session", store))
 
-	// API 路由
-	r.GET("/status", service.Status)
-	r.GET("/session/set", service.SessionSet)
-	r.GET("/session/get", service.SessionGet)
-	r.GET("/session/del", service.SessionDel)
+	// ---- OAuth 处理器 ----
+	oauth := service.NewOAuthHandler(cfg)
+
+	// ---- 路由 ----
+	r.GET("/login", oauth.Login)
+	r.GET("/callback", oauth.Callback)
+	r.GET("/logout", oauth.Logout)
+	r.GET("/status", oauth.Status)
 
 	// ---- 嵌入式前端静态文件 ----
 	staticFS, err := fs.Sub(webFS, "web")

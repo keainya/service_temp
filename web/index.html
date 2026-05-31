@@ -3,30 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>服务管理中心</title>
+    <title>模板项目</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <header id="header">
-        <div class="header-inner">
-            <a href="#" class="logo">⚙ 服务管理</a>
-            <nav id="nav-main"></nav>
-            <div id="user-area"></div>
-            <button class="menu-toggle" id="menu-toggle" aria-label="菜单">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-            </button>
-        </div>
+        <span class="logo">模板项目</span>
+        <div id="user-area"></div>
     </header>
-
-    <div class="drawer-overlay" id="drawer-overlay"></div>
-    <nav class="drawer" id="drawer"></nav>
-
+    <main id="main">
+        <div class="center">
+            <h1>模板项目</h1>
+            <p class="sub">这是一个模板项目，使用 OAuth 2.0 进行用户认证。</p>
+            <a href="/login" class="btn btn-primary" id="btn-login">登录</a>
+        </div>
+    </main>
     <div id="toast" class="toast"></div>
-
-    <main id="main"></main>
-
-    <div id="modal-container"></div>
-
     <script src="js/app.js"></script>
 </body>
 </html>

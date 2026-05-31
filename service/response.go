@@ -6,10 +6,3 @@ type Response struct {
 	Data any    `json:"data"`
 }
 
-func DefaultResponse() Response {
-	return Response{
-		Code: 0,
-		Msg:  "ok",
-		Data: nil,
-	}
-}
