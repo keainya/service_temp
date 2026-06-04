@@ -1,17 +1,20 @@
+set SERVER=root@takemeto.icu
+set APP=service_temp
+
 go mod tidy
 set GOOS=linux
 go build -ldflags="-s -w" -o app.out
 set GOOS=windows
 
-ssh root@takemeto.icu "mkdir /apps 2>/dev/null"
-ssh root@takemeto.icu "mkdir /apps/service_temp 2>/dev/null"
+ssh %SERVER% "mkdir /apps 2>/dev/null"
+ssh %SERVER% "mkdir /apps/%APP% 2>/dev/null"
 
-ssh root@takemeto.icu "rm -f /apps/service_temp/app.out 2>/dev/null"
-scp .\app.out root@takemeto.icu:/apps/service_temp/app.out
-ssh root@takemeto.icu "chmod +x /apps/service_temp/app.out"
+ssh %SERVER% "rm -f /apps/%APP%/app.out 2>/dev/null"
+scp .\app.out %SERVER%:/apps/%APP%/app.out
+ssh %SERVER% "chmod +x /apps/%APP%/app.out"
 
-ssh root@takemeto.icu "rm -f /apps/service_temp/config.toml 2>/dev/null"
-scp .\config.toml root@takemeto.icu:/apps/service_temp/config.toml
+ssh %SERVER% "rm -f /apps/%APP%/config.toml 2>/dev/null"
+scp .\config.toml %SERVER%:/apps/%APP%/config.toml
 
-ssh root@takemeto.icu "kill $(ps aux | grep /apps/service_temp/app.out | grep -v grep | awk '{print $2}') 2>/dev/null"
-ssh root@takemeto.icu "cd /apps/service_temp && nohup /apps/service_temp/app.out > /dev/null 2>&1 &"
+ssh %SERVER% "kill $(ps aux | grep /apps/%APP%/app.out | grep -v grep | awk '{print $2}') 2>/dev/null"
+ssh %SERVER% "cd /apps/%APP% && nohup /apps/%APP%/app.out > /dev/null 2>&1 &"
